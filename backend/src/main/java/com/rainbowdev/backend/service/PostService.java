@@ -2,7 +2,10 @@ package com.rainbowdev.backend.service;
 
 import com.rainbowdev.backend.model.Post;
 import com.rainbowdev.backend.repository.PostRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -12,6 +15,10 @@ public class PostService {
     @Autowired
     private PostRepository postRepository;
 
+
+    private static final Logger logger = LoggerFactory.getLogger(PostService.class);
+
+    @Cacheable("posts")
     public List<Post> getAllPosts() {
         return postRepository.findAll();
     }
