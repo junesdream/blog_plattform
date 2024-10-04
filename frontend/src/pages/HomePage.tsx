@@ -1,18 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import PostCard from '../components/PostCard';
+import PostCard from '../components/posts/PostCard';
 import { Post } from '../types/Post';
+import { fetchPosts } from '../services/api';
 
 const HomePage: React.FC = () => {
     const [posts, setPosts] = useState<Post[]>([]);
 
     useEffect(() => {
-        const fetchPosts = async () => {
-            const response = await fetch('http://deine-api-url.com/posts');
-            const data: Post[] = await response.json();
+        const getPosts = async () => {
+            const data = await fetchPosts();
             setPosts(data);
         };
 
-        fetchPosts();
+        getPosts();
     }, []);
 
     return (

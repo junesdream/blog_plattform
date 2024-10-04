@@ -1,17 +1,14 @@
 import React, { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import { Post } from '../types/Post';
-
-interface RouteParams {
-    id: string;
-}
 
 const PostPage: React.FC = () => {
     const [post, setPost] = useState<Post | null>(null);
-    const id = "your_id_here";
+    const { id } = useParams<{ id: string }>();
 
     useEffect(() => {
         const fetchPost = async () => {
-            const response = await fetch(`http://deine-api-url.com/posts/${id}`);
+            const response = await fetch(`http://localhost:8080/api/posts/${id}`);
             const data: Post = await response.json();
             setPost(data);
         };

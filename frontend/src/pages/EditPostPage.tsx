@@ -2,41 +2,53 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Post } from '../types/Post';
 
-interface RouteParams {
-    id?: string;
-}
-
 const EditPostPage: React.FC = () => {
     const [post, setPost] = useState<Post>({ id: 0, title: '', body: '' });
-    const { id } = useParams<{id: string}>();
+    const { id } = useParams<{ id?: string }>();
+    const navigate = useNavigate();
 
     useEffect(() => {
         if (id) {
             const fetchPost = async () => {
-                const response = await fetch(`http://deine-api-url.com/posts/${id}`);
-                const data: Post = await response.json();
-                setPost(data);
+                try {
+                    const response = await fetch(`http://localhost:8080/api/posts/${id}`);
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    const data: Post = await response.json();
+                    setPost(data);
+                } catch (error) {
+                    console.error('Failed to fetch post:', error);
+                }
             };
 
             fetchPost();
         }
     }, [id]);
 
-    const navigate = useNavigate();
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         const method = id ? 'PUT' : 'POST';
-        const url = id ? `http://deine-api-url.com/posts/${id}` : 'http://deine-api-url.com/posts';
+        const url = id ? `http://localhost:8080/api/posts/${id}` : 'http://localhost:8080/api/posts';
 
-        await fetch(url, {
-            method,
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(post)
-        });
+        try {
+            const response = await fetch(url, {
+                method,
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(post),
+                credentials: 'include'
+            });
 
-       navigate('/');
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+
+            navigate('/');
+        } catch (error) {
+            console.error('Failed to submit post:', error);
+        }
     };
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
