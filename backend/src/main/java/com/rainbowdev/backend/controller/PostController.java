@@ -1,6 +1,8 @@
 package com.rainbowdev.backend.controller;
 
+import com.rainbowdev.backend.model.Comment;
 import com.rainbowdev.backend.model.Post;
+import com.rainbowdev.backend.service.CommentService;
 import com.rainbowdev.backend.service.PostService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -15,9 +17,13 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/posts")
 @Tag(name = "Posts", description = "Operations related to posts")
+@CrossOrigin(origins = "http://localhost:3000", allowedHeaders = "*", methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE, RequestMethod.OPTIONS})
 public class PostController {
     @Autowired
     private PostService postService;
+
+    @Autowired
+    private CommentService commentService;
 
     @Operation(summary = "Get all posts", description = "Returns a list of all posts.")
     @GetMapping
@@ -56,5 +62,18 @@ public class PostController {
     public ResponseEntity<Void> deletePost(@PathVariable Long id) {
         postService.deletePost(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @GetMapping("/{id}/comments")
+    public ResponseEntity<List<Comment>> getCommentsByPostId(@PathVariable Long id) {
+        List<Comment> comments = commentService.getCommentsByPostId(id);
+        return new ResponseEntity<>(comments, HttpStatus.OK);
+    }
+
+    @PostMapping("/{id}/comments")
+    public ResponseEntity<Comment> createComment(@PathVariable Long id, @Valid @RequestBody Comment comment) {
+        comment.setPostId(id);
+        Comment createdComment = commentService.createComment(comment);
+        return new ResponseEntity<>(createdComment, HttpStatus.CREATED);
     }
 }

@@ -1,4 +1,5 @@
 import { Post } from '../types/Post';
+import { Comment } from '../types/Comment';
 
 const API_URL = 'http://localhost:8080/api';
 
@@ -26,5 +27,24 @@ export const savePost = async (post: Post): Promise<void> => {
     });
     if (!response.ok) {
         throw new Error('Failed to save post');
+    }
+};
+
+export const fetchCommentsByPostId = async (postId: number): Promise<Comment[]> => {
+    const response = await fetch(`${API_URL}/posts/${postId}/comments`);
+    if (!response.ok) {
+        throw new Error('Failed to fetch comments');
+    }
+    return response.json();
+};
+
+export const saveComment = async (comment: Comment): Promise<void> => {
+    const response = await fetch(`${API_URL}/posts/${comment.postId}/comments`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(comment)
+    });
+    if (!response.ok) {
+        throw new Error('Failed to save comment');
     }
 };
