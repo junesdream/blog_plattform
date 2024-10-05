@@ -6,26 +6,45 @@ import PostForm from '../components/posts/PostForm';
 
 const EditPostPage: React.FC = () => {
     const [post, setPost] = useState<Post | null>(null);
+    const [loading, setLoading] = useState(true); // Neuer Zustand für das Laden
+    const [error, setError] = useState<string | null>(null); // Fehlerzustand
     const { id } = useParams<{ id?: string }>();
     const navigate = useNavigate();
 
     useEffect(() => {
-        const fetchPost = async () => {
+        const loadPost = async () => {
             if (id) {
-                const data = await fetchPostById(Number(id));
-                setPost(data);
+                try {
+                    const fetchedPost = await fetchPostById(Number(id));
+                    setPost(fetchedPost);
+                } catch (error) {
+                    console.error('Failed to fetch post:', error);
+                    setError('Failed to load the post.');
+                }
             }
+            setLoading(false); // Beendet den Ladezustand nach dem Versuch, den Post zu laden
         };
 
-        fetchPost();
+        loadPost();
     }, [id]);
 
     const handleSubmit = async (post: Post) => {
-        await savePost(post);
-        navigate('/');
+        try {
+            await savePost(post);
+            navigate('/'); // Redirect to home after save
+        } catch (error) {
+            console.error('Failed to save post:', error);
+            setError('Failed to save the post.');
+        }
     };
 
-    if (!post) return <div>Loading...</div>;
+    if (loading) {
+        return <div>Loading...</div>;
+    }
+
+    if (error) {
+        return <div>{error}</div>; // Anzeigen des Fehlers
+    }
 
     return (
         <div>

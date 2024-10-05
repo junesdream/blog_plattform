@@ -1,10 +1,11 @@
+// src/pages/PostPage.tsx
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { Post } from '../types/Post';
 import { Comment } from '../types/Comment';
 import { fetchPostById, fetchCommentsByPostId, saveComment } from '../services/api';
 import CommentForm from '../components/comments/CommentForm';
-import CommentComponent from '../components/comments/Comment'; // Änderung hier
+import CommentComponent from '../components/comments/Comment';
 
 const PostPage: React.FC = () => {
     const [post, setPost] = useState<Post | null>(null);
@@ -12,43 +13,35 @@ const PostPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
 
     useEffect(() => {
-        const fetchPost = async () => {
+        const fetchPostAndComments = async () => {
             if (id) {
-                const data = await fetchPostById(Number(id));
-                setPost(data);
+                try {
+                    const postData = await fetchPostById(Number(id));
+                    setPost(postData);
+
+                    const commentsData = await fetchCommentsByPostId(Number(id));
+                    setComments(commentsData);
+                } catch (error) {
+                    console.error("Error fetching data: ", error);
+                }
             }
         };
 
-        fetchPost();
+        fetchPostAndComments();
     }, [id]);
-
-    useEffect(() => {
-        const fetchComments = async () => {
-            if (id) {
-                const data = await fetchCommentsByPostId(Number(id));
-                setComments(data);
-            }
-        };
-
-        fetchComments();
-    }, [id]);
-
-    const handleCommentSubmit = async (comment: Comment) => {
-        await saveComment(comment);
-        setComments(prevComments => [...prevComments, comment]);
-    };
 
     if (!post) return <div>Loading...</div>;
 
     return (
         <div>
             <h1>{post.title}</h1>
-            <p>{post.body}</p>
+            <p>{post.content}</p>
+            <p>Author: {post.author}</p> {/* Hier wird der Autor angezeigt */}
             <h2>Comments</h2>
             {comments.map(comment => (
-                <CommentComponent key={comment.id} comment={comment} /> // Änderung hier
+                <CommentComponent key={comment.id} comment={comment} />
             ))}
-            <CommentForm postId={post.id} onSubmit={handleCommentSubmit} />
+            <CommentForm postId={post.id} onSubmit={saveComment} />
         </div>
     );
 };
