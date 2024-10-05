@@ -13,8 +13,9 @@ const App: React.FC = () => {
             <Navbar />
             <Routes>
                 <Route path="/" element={<HomePage />} />
+                <Route path="/edit" element={<EditPostPage />} />
                 <Route path="/posts/:id" element={<PostPage />} />
-                <Route path="/edit/:id?" element={<EditPostPage />} />
+                <Route path="/edit/:id" element={<EditPostPage />} />
             </Routes>
         </Router>
     );

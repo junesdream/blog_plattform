@@ -5,24 +5,37 @@ import { fetchPosts } from '../services/api';
 
 const HomePage: React.FC = () => {
     const [posts, setPosts] = useState<Post[]>([]);
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         const getPosts = async () => {
-            const data = await fetchPosts();
-            setPosts(data);
+            try {
+                const data = await fetchPosts();
+                setPosts(data);
+                setError(null); // Clear previous errors if any
+            } catch (err) {
+                setError('Failed to fetch posts');
+                console.error(err);
+            }
         };
 
         getPosts();
     }, []);
 
+    if (error) return <div>Error: {error}</div>;
+
     return (
         <div>
             <h1>Blog Plattform</h1>
-            <div>
-                {posts.map(post => (
-                    <PostCard key={post.id} post={post} />
-                ))}
-            </div>
+            {posts.length > 0 ? (
+                <div>
+                    {posts.map(post => (
+                        <PostCard key={post.id} post={post} />
+                    ))}
+                </div>
+            ) : (
+                <div>No posts available.</div>
+            )}
         </div>
     );
 };

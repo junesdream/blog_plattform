@@ -1,54 +1,47 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Post } from '../types/Post';
 import { Comment } from '../types/Comment';
-import { fetchPostById, fetchCommentsByPostId, saveComment } from '../services/api';
+import CommentComponent from '../components/comments/Comment';
 import CommentForm from '../components/comments/CommentForm';
-import CommentComponent from '../components/comments/Comment'; // Änderung hier
+import { saveComment, fetchCommentsByPostId } from "../services/api";
 
 const PostPage: React.FC = () => {
-    const [post, setPost] = useState<Post | null>(null);
-    const [comments, setComments] = useState<Comment[]>([]);
     const { id } = useParams<{ id: string }>();
+    const [comments, setComments] = useState<Comment[]>([]);
 
     useEffect(() => {
-        const fetchPost = async () => {
+        const loadComments = async () => {
             if (id) {
-                const data = await fetchPostById(Number(id));
-                setPost(data);
+                try {
+                    const fetchedComments = await fetchCommentsByPostId(Number(id));
+                    setComments(fetchedComments);
+                } catch (error) {
+                    console.error("Failed to fetch comments:", error);
+                }
             }
         };
-
-        fetchPost();
+        loadComments();
     }, [id]);
 
-    useEffect(() => {
-        const fetchComments = async () => {
-            if (id) {
-                const data = await fetchCommentsByPostId(Number(id));
-                setComments(data);
-            }
-        };
 
-        fetchComments();
-    }, [id]);
-
-    const handleCommentSubmit = async (comment: Comment) => {
-        await saveComment(comment);
-        setComments(prevComments => [...prevComments, comment]);
+    const handleAddComment = async (comment: Comment) => {
+        try {
+            const newComment = await saveComment(comment); // Passe die Argumente an
+            setComments([...comments, newComment]);
+        } catch (error) {
+            console.error("Failed to add comment:", error);
+        }
     };
-
-    if (!post) return <div>Loading...</div>;
 
     return (
         <div>
-            <h1>{post.title}</h1>
-            <p>{post.body}</p>
-            <h2>Comments</h2>
-            {comments.map(comment => (
-                <CommentComponent key={comment.id} comment={comment} /> // Änderung hier
-            ))}
-            <CommentForm postId={post.id} onSubmit={handleCommentSubmit} />
+            <h1>Post Page</h1>
+            <CommentForm postId={Number(id)} onSubmit={handleAddComment} />
+            <div>
+                {comments.map((comment) => (
+                    <CommentComponent key={comment.id} comment={comment} />
+                ))}
+            </div>
         </div>
     );
 };

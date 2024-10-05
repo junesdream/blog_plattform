@@ -72,8 +72,9 @@ public class PostController {
 
     @PostMapping("/{id}/comments")
     public ResponseEntity<Comment> createComment(@PathVariable Long id, @Valid @RequestBody Comment comment) {
-        comment.setPostId(id);
+        comment.setPostId(id); // set the correct postId before saving
         Comment createdComment = commentService.createComment(comment);
         return new ResponseEntity<>(createdComment, HttpStatus.CREATED);
     }
+
 }

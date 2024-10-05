@@ -15,7 +15,7 @@ import lombok.Setter;
 public class Post {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
     @NotBlank(message = "Title is mandatory")
     @Size(min = 5, max = 100, message = "Title must be between 5 and 100 characters")
@@ -28,3 +28,4 @@ public class Post {
     @NotBlank(message = "Author is mandatory")
     private String author;
 }
+

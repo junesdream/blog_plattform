@@ -17,7 +17,7 @@ public class SQLiteDialect extends Dialect {
         registerColumnType(Types.BOOLEAN, "boolean");
     }
 
-    private void registerColumnType(int real, String real1) {
+    private void registerColumnType(int blob, String blob1) {
     }
 
     @Override

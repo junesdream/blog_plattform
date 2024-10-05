@@ -45,7 +45,7 @@ class PostRepositoryTest {
         Post savedPost = postRepository.save(post);
 
         // When: the saved post is retrieved by ID
-        Optional<Post> retrievedPost = postRepository.findById(savedPost.getId());
+        Optional<Post> retrievedPost = postRepository.findById(Long.valueOf(savedPost.getId()));
 
         // Then: the post should be present
         assertTrue(retrievedPost.isPresent());
@@ -63,10 +63,10 @@ class PostRepositoryTest {
         Post savedPost = postRepository.save(post);
 
         // When: The post is deleted
-        postRepository.deleteById(savedPost.getId());
+        postRepository.deleteById(Long.valueOf(savedPost.getId()));
 
         // Then: The post should no longer exist in the repository
-        Optional<Post> deletedPost = postRepository.findById(savedPost.getId());
+        Optional<Post> deletedPost = postRepository.findById(Long.valueOf(savedPost.getId()));
         assertFalse(deletedPost.isPresent());
     }
 
